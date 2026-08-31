@@ -3,9 +3,8 @@ import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import TeamGrid from "~/components/TeamGrid.astro";
 import { useT, type Locale } from "~/lib/i18n";
-// Replace src/assets/about/hero.svg with a real photo (same path, .jpg/.webp ok
-// — then update the extension here).
-import heroPhoto from "~/assets/about/hero.svg";
+// src/assets/about/hero.webp — swap the file to change the photo.
+import heroPhoto from "~/assets/about/hero.webp";
 
 interface Props {
   locale: Locale;
