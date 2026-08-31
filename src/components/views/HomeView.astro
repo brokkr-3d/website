@@ -1,20 +1,18 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ProjectRow from "~/components/ProjectRow.astro";
-import ServiceCard from "~/components/ServiceCard.astro";
-import { getProjects, getServices, localizeService } from "~/lib/content";
+import TeamGrid from "~/components/TeamGrid.astro";
+import { getProjects } from "~/lib/content";
 import { SITE } from "~/config/site";
-import { sectionHref, useT, withBase, type Locale } from "~/lib/i18n";
+import { withBase, type Locale } from "~/lib/i18n";
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
-const t = useT(locale);
 
 // Home shows the featured selection; /projects lists everything.
 const projects = (await getProjects(locale)).filter((p) => p.data.featured);
-const services = (await getServices()).map((s) => localizeService(s, locale));
 
 // ---------------------------------------------------------------------------
 // HERO COPY — a single short "about us" paragraph. Swap the text per locale.
@@ -58,25 +56,7 @@ const logoSrc = withBase("/brokkr-logo.svg");
   }
 
   <section class="section container">
-    <div class="section__head">
-      <h2>{t("home.servicesHeading")}</h2>
-      <a class="section__more" href={sectionHref(locale, "services")}>
-        {t("home.allServices")} &rarr;
-      </a>
-    </div>
-    <div class="services-list">
-      {
-        services.map((s, i) => (
-          <ServiceCard
-            locale={locale}
-            id={s.id}
-            index={i + 1}
-            title={s.title}
-            tagline={s.tagline}
-          />
-        ))
-      }
-    </div>
+    <TeamGrid locale={locale} />
   </section>
 </BaseLayout>
 
@@ -107,25 +87,5 @@ const logoSrc = withBase("/brokkr-logo.svg");
     display: flex;
     flex-direction: column;
     gap: clamp(3rem, 8vw, 7rem);
-  }
-
-  .section__head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-m);
-    margin-bottom: var(--space-l);
-    padding-bottom: var(--space-s);
-    border-bottom: var(--border);
-  }
-  .section__more {
-    font-family: var(--font-sans);
-    font-size: var(--step--1);
-    text-decoration: none;
-    color: var(--ink-soft);
-    flex: none;
-  }
-  .section__more:hover {
-    color: var(--accent);
   }
 </style>

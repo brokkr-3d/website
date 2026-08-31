@@ -1,15 +1,17 @@
 ---
 import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { getTeam, localizeTeam } from "~/lib/content";
+import TeamGrid from "~/components/TeamGrid.astro";
 import { useT, type Locale } from "~/lib/i18n";
+// Replace src/assets/about/hero.svg with a real photo (same path, .jpg/.webp ok
+// — then update the extension here).
+import heroPhoto from "~/assets/about/hero.svg";
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const t = useT(locale);
-const team = (await getTeam()).map((m) => localizeTeam(m, locale));
 
 const statement =
   locale === "no"
@@ -37,37 +39,22 @@ const statement =
       </div>
     </header>
 
-    {
-      team.length > 0 && (
-        <div class="team">
-          <h2 class="team__heading">{t("about.teamHeading")}</h2>
-          <ul class="team__grid">
-            {team.map((m) => (
-              <li class="member">
-                {m.photo && (
-                  <Image
-                    class="member__photo"
-                    src={m.photo}
-                    alt={m.name}
-                    widths={[240, 400, 600]}
-                    sizes="(min-width: 40rem) 18rem, 45vw"
-                  />
-                )}
-                <p class="member__name">{m.name}</p>
-                <p class="member__role">{m.role}</p>
-                {m.bio && <p class="member__bio">{m.bio}</p>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
+    <Image
+      class="about-hero"
+      src={heroPhoto}
+      alt="Brokkr at work"
+      widths={[600, 900, 1200, 1600]}
+      sizes="(min-width: 78rem) 72rem, 92vw"
+      loading="lazy"
+    />
+
+    <TeamGrid locale={locale} />
   </section>
 </BaseLayout>
 
 <style>
   .page-head {
-    margin-bottom: var(--space-3xl);
+    margin-bottom: var(--space-2xl);
   }
   .page-head .eyebrow {
     margin-bottom: var(--space-m);
@@ -78,46 +65,12 @@ const statement =
     color: var(--ink);
     max-width: 40ch;
   }
-  .team__heading {
-    font-family: var(--font-sans);
-    font-size: var(--step--1);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    margin-bottom: var(--space-l);
-    padding-bottom: var(--space-s);
-    border-bottom: var(--border);
-  }
-  .team__grid {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: var(--space-xl) var(--space-l);
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-  }
-  .member__photo {
+  .about-hero {
     width: 100%;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 16 / 10;
     object-fit: cover;
     background: var(--paper-dim);
     border-radius: var(--radius);
-    margin-bottom: var(--space-s);
-  }
-  .member__name {
-    font-size: var(--step-1);
-  }
-  .member__role {
-    font-family: var(--font-sans);
-    font-size: var(--step--2);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    margin-top: var(--space-3xs);
-  }
-  .member__bio {
-    margin-top: var(--space-s);
-    color: var(--ink-soft);
-    font-size: var(--step-0);
-    line-height: var(--leading-snug);
+    margin-bottom: var(--space-3xl);
   }
 </style>

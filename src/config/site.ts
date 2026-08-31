@@ -17,15 +17,25 @@ export const SITE = {
   },
   /** TODO(founder): confirm before launch — current site shows ap@brokkr.dk */
   email: "ap@brokkr.dk",
-  /** TODO(founder): confirm before launch */
+  /** TODO(founder): confirm street/postal before launch */
   address: {
     street: "Ivan Bjørndalsgate 9",
     postal: "0472 Oslo",
     country: { en: "Norway", no: "Norge" },
+    coords: { lat: 59.9388968, lng: 10.7651815 },
+    mapUrl:
+      "https://www.google.com/maps/place/Brokkr/@59.9388968,10.7651815,807m/data=!3m2!1e3!4b1!4m6!3m5!1s0x46416d6a605c6611:0x1e2701755258f854!8m2!3d59.9388968!4d10.7651815!16s%2Fg%2F11ln1ckhpw",
   },
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/brokkr3d/" },
   ],
+  /**
+   * Contact-form access key for Web3Forms (https://web3forms.com — free, no
+   * account: enter an email, get a key). Safe to commit: it is a public,
+   * per-form key, already visible in the page HTML. Empty = form hidden, the
+   * contact page falls back to email only. Overridable via PUBLIC_WEB3FORMS_KEY.
+   */
+  web3formsKey: "" as string,
 } as const;
 
 /** Order controls the header nav. `key` maps into the i18n route-segment map. */

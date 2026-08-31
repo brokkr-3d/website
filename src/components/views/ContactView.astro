@@ -12,8 +12,25 @@ const country = locale === "no" ? SITE.address.country.no : SITE.address.country
 
 const blurb =
   locale === "no"
-    ? "Har du et prosjekt, en idé eller bare et spørsmål? Send oss en e-post — vi svarer raskt."
-    : "Have a project, an idea or just a question? Send us an email — we reply quickly.";
+    ? "Har du et prosjekt, en idé eller bare et spørsmål? Send oss en melding — vi svarer raskt."
+    : "Have a project, an idea or just a question? Send us a message — we reply quickly.";
+
+// Map — OpenStreetMap embed (no cookies / tracking); the address links out to
+// the Google Maps place page.
+const { lat, lng } = SITE.address.coords;
+const d = 0.0055;
+const bbox = [lng - d * 1.7, lat - d, lng + d * 1.7, lat + d].join("%2C");
+const osmSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+
+// Contact form — posts to Web3Forms (no backend). Set SITE.web3formsKey;
+// empty = form hidden, contact page falls back to email only.
+const formKey: string = SITE.web3formsKey;
+
+const formStrings = {
+  sending: t("contact.form.sending"),
+  success: t("contact.form.success"),
+  error: t("contact.form.error"),
+};
 ---
 
 <BaseLayout
@@ -27,10 +44,6 @@ const blurb =
     <h1>{t("contact.cta")}</h1>
     <p class="lede">{blurb}</p>
 
-    <p class="contact-actions">
-      <a class="button" href={`mailto:${SITE.email}`}>{t("contact.emailUs")}</a>
-    </p>
-
     <dl class="contact-details">
       <div>
         <dt>Email</dt>
@@ -39,9 +52,10 @@ const blurb =
       <div>
         <dt>{t("project.location")}</dt>
         <dd>
-          {SITE.address.street}<br />
-          {SITE.address.postal}<br />
-          {country}
+          <a href={SITE.address.mapUrl} target="_blank" rel="noopener">
+            {SITE.address.street}<br />
+            {SITE.address.postal}, {country}
+          </a>
         </dd>
       </div>
       <div>
@@ -57,8 +71,117 @@ const blurb =
         </dd>
       </div>
     </dl>
+
+    <figure class="map">
+      <iframe
+        src={osmSrc}
+        title="Map showing Brokkr's location in Oslo"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+      <figcaption>
+        <a href={SITE.address.mapUrl} target="_blank" rel="noopener">
+          {t("contact.mapLink")} &rarr;
+        </a>
+      </figcaption>
+    </figure>
+
+    <div class="form-block">
+      <h2 class="form-heading">{t("contact.formHeading")}</h2>
+
+      {
+        formKey ? (
+          <form
+            class="cform"
+            action="https://api.web3forms.com/submit"
+            method="POST"
+            data-contact-form
+          >
+            <input type="hidden" name="access_key" value={formKey} />
+            <input type="hidden" name="from_name" value="brokkr.design" />
+            <input
+              type="hidden"
+              name="subject"
+              value="New message via brokkr.design"
+            />
+            <input
+              type="checkbox"
+              name="botcheck"
+              class="cform__hp"
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+            />
+
+            <p class="cform__field">
+              <label for="cf-name">{t("contact.form.name")}</label>
+              <input id="cf-name" type="text" name="name" required autocomplete="name" />
+            </p>
+            <p class="cform__field">
+              <label for="cf-email">{t("contact.form.email")}</label>
+              <input
+                id="cf-email"
+                type="email"
+                name="email"
+                required
+                autocomplete="email"
+              />
+            </p>
+            <p class="cform__field">
+              <label for="cf-msg">{t("contact.form.message")}</label>
+              <textarea id="cf-msg" name="message" rows="6" required />
+            </p>
+
+            <button type="submit" class="button">
+              {t("contact.form.send")}
+            </button>
+            <p class="cform__status" data-status role="status" aria-live="polite" />
+          </form>
+        ) : (
+          <p class="form-note">
+            {t("contact.form.disabled")}{" "}
+            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          </p>
+        )
+      }
+    </div>
   </section>
 </BaseLayout>
+
+<script is:inline define:vars={{ formStrings }}>
+  const form = document.querySelector("[data-contact-form]");
+  if (form) {
+    const status = form.querySelector("[data-status]");
+    const btn = form.querySelector('button[type="submit"]');
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (form.botcheck && form.botcheck.checked) return;
+      btn.disabled = true;
+      status.className = "cform__status";
+      status.textContent = formStrings.sending;
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          form.reset();
+          status.textContent = formStrings.success;
+          status.classList.add("is-ok");
+        } else {
+          throw new Error(data.message || "failed");
+        }
+      } catch {
+        status.textContent = formStrings.error;
+        status.classList.add("is-err");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+</script>
 
 <style>
   h1 {
@@ -66,9 +189,6 @@ const blurb =
   }
   .lede {
     margin-top: var(--space-m);
-  }
-  .contact-actions {
-    margin-top: var(--space-l);
   }
   .contact-details {
     margin-top: var(--space-2xl);
@@ -92,10 +212,115 @@ const blurb =
     margin: 0;
     line-height: 1.8;
   }
-  .contact-details dd a {
+  .contact-details dd > a {
     display: inline-block;
     margin-right: var(--space-s);
   }
+
+  .map {
+    margin: var(--space-2xl) 0 0;
+  }
+  .map iframe {
+    width: 100%;
+    height: clamp(16rem, 42vh, 24rem);
+    border: var(--border);
+    border-radius: var(--radius);
+    display: block;
+    filter: saturate(0.85);
+  }
+  .map figcaption {
+    margin-top: var(--space-s);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+  }
+  .map figcaption a {
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+  .map figcaption a:hover {
+    color: var(--accent);
+  }
+
+  .form-block {
+    margin-top: var(--space-3xl);
+  }
+  .form-heading {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: var(--space-l);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--border);
+  }
+  .form-note {
+    color: var(--ink-soft);
+  }
+
+  .cform {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    max-width: 34rem;
+  }
+  .cform__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  .cform__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+  .cform__field label {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .cform input,
+  .cform textarea {
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    padding: 0.7em 0.85em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  .cform input:focus-visible,
+  .cform textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  .cform textarea {
+    resize: vertical;
+    min-height: 7rem;
+  }
+  .cform button {
+    align-self: flex-start;
+  }
+  .cform button[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .cform__status {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    min-height: 1.4em;
+    margin: 0;
+  }
+  .cform__status.is-ok {
+    color: var(--accent);
+  }
+  .cform__status.is-err {
+    color: #a4262c;
+  }
+
   @media (max-width: 34rem) {
     .contact-details > div {
       grid-template-columns: 1fr;
