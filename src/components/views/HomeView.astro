@@ -4,7 +4,7 @@ import ProjectRow from "~/components/ProjectRow.astro";
 import ServiceCard from "~/components/ServiceCard.astro";
 import { getProjects, getServices, localizeService } from "~/lib/content";
 import { SITE } from "~/config/site";
-import { sectionHref, useT, type Locale } from "~/lib/i18n";
+import { sectionHref, useT, withBase, type Locale } from "~/lib/i18n";
 
 interface Props {
   locale: Locale;
@@ -24,7 +24,7 @@ const heroBody = {
   no: "Brokkr er et lite 3D-printstudio midt i Oslo med stor produksjonskapasitet. Vi er produktdesignere som hjelper deg å realisere visjonen din helt fram til ferdig produkt. Vi tror på lokal, bærekraftig produksjon.",
 }[locale];
 
-const logoSrc = `${import.meta.env.BASE_URL}brokkr-logo.svg`;
+const logoSrc = withBase("/brokkr-logo.svg");
 ---
 
 <BaseLayout locale={locale} title={SITE.name} description={heroBody}>
