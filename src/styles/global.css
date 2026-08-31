@@ -63,6 +63,12 @@ main {
   flex: 1;
 }
 
+/* Editorial photo treatment — colours pulled back a touch so the imagery
+   reads as one set. Zero-specificity so components can still opt out. */
+:where(main img:not([src$=".svg"])) {
+  filter: saturate(0.72);
+}
+
 h1,
 h2,
 h3,

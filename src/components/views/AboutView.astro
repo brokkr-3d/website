@@ -3,8 +3,8 @@ import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import TeamGrid from "~/components/TeamGrid.astro";
 import { useT, type Locale } from "~/lib/i18n";
-// src/assets/about/hero.webp — swap the file to change the photo.
-import heroPhoto from "~/assets/about/hero.webp";
+// src/assets/about/hero.jpg — swap the file to change the photo.
+import heroPhoto from "~/assets/about/hero.jpg";
 
 interface Props {
   locale: Locale;
@@ -41,9 +41,9 @@ const statement =
     <Image
       class="about-hero"
       src={heroPhoto}
-      alt="Brokkr at work"
-      widths={[600, 900, 1200, 1600]}
-      sizes="(min-width: 78rem) 72rem, 92vw"
+      alt="Alf Petter and a colleague fitting 3D-printed parts on site"
+      widths={[480, 720, 960, 1440]}
+      sizes="(min-width: 40rem) 32rem, 88vw"
       loading="lazy"
     />
 
@@ -65,8 +65,10 @@ const statement =
     max-width: 40ch;
   }
   .about-hero {
+    display: block;
     width: 100%;
-    aspect-ratio: 16 / 10;
+    max-width: 32rem;
+    aspect-ratio: 3 / 4;
     object-fit: cover;
     background: var(--paper-dim);
     border-radius: var(--radius);
