@@ -1,0 +1,144 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ProjectRow from "~/components/ProjectRow.astro";
+import { getProjects, getServices, localizeService, usedCategories } from "~/lib/content";
+import { categoryLabel } from "~/config/taxonomy";
+import { sectionHref, useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useT(locale);
+
+const projects = await getProjects(locale);
+const services = (await getServices()).map((s) => localizeService(s, locale));
+const usedCats = await usedCategories(locale);
+
+const cardServiceIds = (p: (typeof projects)[number]) =>
+  p.data.services.map((r) => r.id);
+
+// Label maps handed to the client script (filtering is URL-driven, no on-page UI).
+const catLabels = Object.fromEntries(
+  usedCats.map((c) => [c, categoryLabel(c, locale)]),
+);
+const svcLabels = Object.fromEntries(services.map((s) => [s.id, s.title]));
+const projectsBase = sectionHref(locale, "projects");
+---
+
+<BaseLayout
+  locale={locale}
+  active="projects"
+  title={t("projects.heading")}
+  description={t("projects.intro")}
+>
+  <section class="section container">
+    <p class="active-filter" data-active-filter hidden>
+      <span class="active-filter__label" data-active-label></span>
+      <a href={projectsBase}>{t("projects.clear")}</a>
+    </p>
+
+    <ul class="project-rows" data-project-grid>
+      {
+        projects.map((p, i) => (
+          <li
+            data-categories={p.data.categories.join(" ")}
+            data-services={cardServiceIds(p).join(" ")}
+          >
+            <ProjectRow project={p} locale={locale} index={i} priority={i < 2} />
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="empty" data-empty hidden>{t("projects.empty")}</p>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ catLabels, svcLabels }}>
+  const grid = document.querySelector("[data-project-grid]");
+  const line = document.querySelector("[data-active-filter]");
+  const lineLabel = document.querySelector("[data-active-label]");
+  const empty = document.querySelector("[data-empty]");
+
+  function apply() {
+    if (!grid) return;
+    const p = new URLSearchParams(location.search);
+    const cat = p.get("category") || "";
+    const svc = p.get("service") || "";
+    let visible = 0;
+    grid.querySelectorAll("li").forEach((li) => {
+      const cats = (li.dataset.categories || "").split(" ").filter(Boolean);
+      const svcs = (li.dataset.services || "").split(" ").filter(Boolean);
+      const ok = (!cat || cats.includes(cat)) && (!svc || svcs.includes(svc));
+      li.toggleAttribute("hidden", !ok);
+      if (ok) {
+        // keep the left/right alternation correct across the visible rows
+        li.querySelector(".prow")?.classList.toggle("is-flipped", visible % 2 === 1);
+        visible++;
+      }
+    });
+    const label = cat ? catLabels[cat] || cat : svc ? svcLabels[svc] || svc : "";
+    if (label && lineLabel) {
+      lineLabel.textContent = label;
+      line?.removeAttribute("hidden");
+    } else {
+      line?.setAttribute("hidden", "");
+    }
+    empty?.toggleAttribute("hidden", visible > 0);
+  }
+
+  apply();
+  window.addEventListener("popstate", apply);
+</script>
+
+<style>
+  .active-filter {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-s);
+    margin-bottom: var(--space-l);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--border);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+  }
+  .active-filter[hidden] {
+    display: none;
+  }
+  .active-filter__label {
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .active-filter a {
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+  .active-filter a:hover {
+    color: var(--ink);
+  }
+  .active-filter a::before {
+    content: "\00d7";
+    margin-right: 0.4em;
+  }
+  .project-rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3.5rem, 9vw, 8rem);
+  }
+  .project-rows li[hidden] {
+    display: none;
+  }
+  .empty {
+    color: var(--ink-faint);
+    font-size: var(--step-1);
+    padding-block: var(--space-xl);
+  }
+  .empty[hidden] {
+    display: none;
+  }
+</style>

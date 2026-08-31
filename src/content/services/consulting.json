@@ -1,0 +1,15 @@
+{
+  "title": "Consulting",
+  "title_no": "Rådgivning",
+  "order": 1,
+  "tagline": "Take the first step into 3D printing with a clear strategy.",
+  "tagline_no": "Ta det første steget inn i 3D-print med en tydelig strategi.",
+  "body": "We help you take the initial step into 3D printing: understand what the technology can and cannot do, where it fits your product or process, and how to adopt it without disrupting what already works.\n\nThe result is a concrete strategy — which parts to print, which materials to use, what it costs, and how to phase it in.",
+  "body_no": "Vi hjelper deg å ta det første steget inn i 3D-print: forstå hva teknologien kan og ikke kan, hvor den passer inn i produktet eller prosessen din, og hvordan du tar den i bruk uten å forstyrre det som allerede fungerer.\n\nResultatet er en konkret strategi — hvilke deler som bør printes, hvilke materialer som bør brukes, hva det koster, og hvordan det kan innføres steg for steg.",
+  "specs": [
+    { "label": "Good for", "label_no": "Passer for", "value": "Teams new to additive manufacturing", "value_no": "Team som er nye til additiv tilvirkning" },
+    { "label": "Output", "label_no": "Leveranse", "value": "Feasibility assessment and adoption roadmap", "value_no": "Mulighetsvurdering og innføringsplan" },
+    { "label": "Format", "label_no": "Format", "value": "Workshop or on-site visit", "value_no": "Workshop eller besøk hos dere" }
+  ],
+  "featured": false
+}

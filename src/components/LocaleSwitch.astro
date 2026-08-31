@@ -1,0 +1,54 @@
+---
+import { LOCALES, swapLocale, localeFromPath, type Locale } from "~/lib/i18n";
+
+const current = localeFromPath(Astro.url.pathname);
+const items = LOCALES.map((l) => ({
+  code: l as Locale,
+  label: l.toUpperCase(),
+  href: swapLocale(Astro.url.pathname, l as Locale),
+  current: l === current,
+}));
+---
+
+<nav class="locale-switch" aria-label="Language">
+  {
+    items.map((it, i) => (
+      <>
+        {i > 0 && <span aria-hidden="true" class="sep">/</span>}
+        <a
+          href={it.href}
+          hreflang={it.code}
+          lang={it.code}
+          aria-current={it.current ? "true" : undefined}
+        >
+          {it.label}
+        </a>
+      </>
+    ))
+  }
+</nav>
+
+<style>
+  .locale-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-wide);
+  }
+  .locale-switch a {
+    text-decoration: none;
+    color: var(--ink-faint);
+    padding: 0.2em 0;
+  }
+  .locale-switch a:hover {
+    color: var(--ink);
+  }
+  .locale-switch a[aria-current="true"] {
+    color: var(--ink);
+  }
+  .sep {
+    color: var(--line-strong);
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+import { Image } from "astro:assets";
+import type { ProjectEntry } from "~/lib/content";
+import { sectionHref, type Locale } from "~/lib/i18n";
+import { categoryLabel } from "~/config/taxonomy";
+
+interface Props {
+  project: ProjectEntry;
+  locale: Locale;
+  /** eager-load the first row above the fold */
+  priority?: boolean;
+}
+const { project, locale, priority = false } = Astro.props;
+const { project: projectKey, title, cover, categories } = project.data;
+const href = sectionHref(locale, "projects", projectKey);
+---
+
+<article class="card">
+  <a class="card__link" href={href}>
+    <span class="card__media">
+      <Image
+        src={cover}
+        alt={title}
+        widths={[400, 600, 900, 1200]}
+        sizes="(min-width: 60rem) 30rem, (min-width: 40rem) 46vw, 92vw"
+        loading={priority ? "eager" : "lazy"}
+      />
+    </span>
+    <span class="card__title">{title}</span>
+  </a>
+  {
+    categories.length > 0 && (
+      <p class="card__tags">
+        {categories.map((c) => (
+          <span>{categoryLabel(c, locale)}</span>
+        ))}
+      </p>
+    )
+  }
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+  .card__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+  .card__media {
+    display: block;
+    overflow: hidden;
+    background: var(--paper-dim);
+    border-radius: var(--radius);
+    aspect-ratio: 4 / 3;
+  }
+  .card__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease;
+  }
+  .card__link:hover .card__media :global(img) {
+    transform: scale(1.03);
+  }
+  .card__title {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+  }
+  .card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35em 0.6em;
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .card__tags span + span::before {
+    content: "·";
+    margin-right: 0.6em;
+    color: var(--line-strong);
+  }
+</style>

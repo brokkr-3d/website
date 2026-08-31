@@ -1,0 +1,322 @@
+---
+import { Image } from "astro:assets";
+import { render } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Gallery from "~/components/Gallery.astro";
+import TagChip from "~/components/TagChip.astro";
+import ProjectCard from "~/components/ProjectCard.astro";
+import {
+  getProject,
+  getServices,
+  localizeService,
+  projectNeighbours,
+  relatedProjects,
+} from "~/lib/content";
+import { categoryLabel } from "~/config/taxonomy";
+import { sectionHref, useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+const { locale, slug } = Astro.props;
+const t = useT(locale);
+
+const entry = await getProject(slug, locale);
+if (!entry) throw new Error(`Unknown project: ${slug} (${locale})`);
+const d = entry.data;
+const { Content } = await render(entry);
+
+const serviceMap = new Map(
+  (await getServices()).map((s) => [s.id, localizeService(s, locale)]),
+);
+const serviceChips = d.services
+  .map((r) => serviceMap.get(r.id))
+  .filter((s): s is NonNullable<typeof s> => Boolean(s))
+  .map((s) => ({ label: s.title, href: sectionHref(locale, "services", s.id) }));
+
+const projectsBase = sectionHref(locale, "projects");
+const categoryChips = d.categories.map((c) => ({
+  label: categoryLabel(c, locale),
+  href: `${projectsBase}?category=${c}`,
+}));
+
+const related = await relatedProjects(entry, locale, 3);
+const { prev, next } = await projectNeighbours(slug, locale);
+
+const meta = [
+  d.year ? { label: t("project.year"), value: String(d.year) } : null,
+  d.client ? { label: t("project.client"), value: d.client } : null,
+  d.location ? { label: t("project.location"), value: d.location } : null,
+].filter(Boolean) as { label: string; value: string }[];
+---
+
+<BaseLayout
+  locale={locale}
+  active="projects"
+  title={d.title}
+  description={d.summary}
+  ogImage={d.cover.src}
+>
+  <article>
+    <div class="section--tight container">
+      <p class="breadcrumb">
+        <a href={projectsBase}>{t("projects.heading")}</a>
+        <span aria-hidden="true">/</span>
+        <span>{d.title}</span>
+      </p>
+
+      <header class="project-head">
+        <h1>{d.title}</h1>
+        <p class="lede">{d.summary}</p>
+        {
+          meta.length > 0 && (
+            <dl class="project-meta">
+              {meta.map((m) => (
+                <div>
+                  <dt>{m.label}</dt>
+                  <dd>{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+      </header>
+    </div>
+
+    <div class="container">
+      <Image
+        class="project-cover"
+        src={d.cover}
+        alt={d.title}
+        widths={[600, 900, 1400, 2000]}
+        sizes="(min-width: 78rem) 72rem, 92vw"
+        loading="eager"
+      />
+    </div>
+
+    <div class="section container project-layout">
+      <div class="project-layout__body">
+        <div class="prose"><Content /></div>
+      </div>
+
+      <aside class="project-layout__aside">
+        {
+          serviceChips.length > 0 && (
+            <div class="aside-block">
+              <h2>{t("project.services")}</h2>
+              <div class="cluster">
+                {serviceChips.map((c) => <TagChip label={c.label} href={c.href} />)}
+              </div>
+            </div>
+          )
+        }
+        {
+          categoryChips.length > 0 && (
+            <div class="aside-block">
+              <h2>{t("project.categories")}</h2>
+              <div class="cluster">
+                {categoryChips.map((c) => <TagChip label={c.label} href={c.href} />)}
+              </div>
+            </div>
+          )
+        }
+        {
+          d.credits.length > 0 && (
+            <div class="aside-block">
+              <h2>{t("project.credits")}</h2>
+              <dl class="credits">
+                {d.credits.map((c) => (
+                  <div>
+                    <dt>{c.role}</dt>
+                    <dd>{c.name}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )
+        }
+        {
+          d.links.length > 0 && (
+            <div class="aside-block">
+              <h2>{t("project.links")}</h2>
+              <ul class="links">
+                {d.links.map((l) => (
+                  <li>
+                    <a href={l.url} target="_blank" rel="noopener">
+                      {l.label} &nearr;
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+
+    {
+      d.gallery.length > 0 && (
+        <div class="section--tight container">
+          <Gallery images={d.gallery} />
+        </div>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="section container">
+          <h2 class="related-heading">{t("project.related")}</h2>
+          <div class="grid-cards">
+            {related.map((p) => (
+              <ProjectCard project={p} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <nav class="project-pager container" aria-label="Projects">
+      {
+        prev ? (
+          <a href={sectionHref(locale, "projects", prev.data.project)} class="project-pager__link">
+            <span class="project-pager__dir">&larr; {t("project.prev")}</span>
+            <span class="project-pager__title">{prev.data.title}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next && (
+          <a
+            href={sectionHref(locale, "projects", next.data.project)}
+            class="project-pager__link project-pager__link--next"
+          >
+            <span class="project-pager__dir">{t("project.next")} &rarr;</span>
+            <span class="project-pager__title">{next.data.title}</span>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    gap: 0.6em;
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    margin-bottom: var(--space-l);
+  }
+  .breadcrumb a {
+    text-decoration: none;
+  }
+  .project-head {
+    max-width: var(--measure);
+  }
+  .project-head .lede {
+    margin-top: var(--space-m);
+  }
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-l);
+    margin-top: var(--space-l);
+  }
+  .project-meta dt {
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .project-meta dd {
+    margin: 0.2em 0 0;
+  }
+  .project-cover {
+    width: 100%;
+    height: auto;
+    margin-top: var(--space-xl);
+    background: var(--paper-dim);
+    border-radius: var(--radius);
+  }
+  .project-layout {
+    display: grid;
+    gap: var(--space-2xl);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 56rem) {
+    .project-layout {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: var(--space-2xl) var(--space-2xl);
+      align-items: start;
+    }
+  }
+  .aside-block + .aside-block {
+    margin-top: var(--space-l);
+  }
+  .aside-block h2 {
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: var(--space-s);
+  }
+  .credits {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .credits dt {
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+  .credits dd {
+    margin: 0 0 var(--space-2xs);
+  }
+  .links {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+  }
+  .related-heading {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: var(--space-m);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--border);
+  }
+  .project-pager {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-block: var(--space-2xl);
+    border-top: var(--border);
+  }
+  .project-pager__link {
+    display: grid;
+    gap: 0.25em;
+    text-decoration: none;
+  }
+  .project-pager__link--next {
+    text-align: right;
+  }
+  .project-pager__dir {
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+  }
+  .project-pager__title {
+    font-size: var(--step-1);
+  }
+</style>

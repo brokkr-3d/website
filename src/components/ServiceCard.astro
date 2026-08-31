@@ -1,0 +1,69 @@
+---
+import { sectionHref, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+  id: string;
+  index: number;
+  title: string;
+  tagline: string;
+}
+const { locale, id, index, title, tagline } = Astro.props;
+const href = sectionHref(locale, "services", id);
+const num = String(index).padStart(2, "0");
+---
+
+<a class="service-card" href={href}>
+  <span class="service-card__num">{num}</span>
+  <span class="service-card__text">
+    <span class="service-card__title">{title}</span>
+    <span class="service-card__tagline">{tagline}</span>
+  </span>
+  <span class="service-card__arrow" aria-hidden="true">&rarr;</span>
+</a>
+
+<style>
+  .service-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: var(--space-m);
+    padding-block: var(--space-m);
+    border-top: var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: color var(--transition);
+  }
+  .service-card:last-child {
+    border-bottom: var(--border);
+  }
+  .service-card__num {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    padding-top: 0.35em;
+  }
+  .service-card__title {
+    display: block;
+    font-size: var(--step-2);
+    line-height: var(--leading-tight);
+  }
+  .service-card__tagline {
+    display: block;
+    margin-top: var(--space-2xs);
+    color: var(--ink-soft);
+    font-size: var(--step-0);
+    max-width: 46ch;
+  }
+  .service-card__arrow {
+    font-family: var(--font-sans);
+    align-self: center;
+    transition: transform var(--transition);
+  }
+  .service-card:hover {
+    color: var(--accent);
+  }
+  .service-card:hover .service-card__arrow {
+    transform: translateX(4px);
+  }
+</style>

@@ -1,0 +1,105 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/config/site";
+import { useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useT(locale);
+const country = locale === "no" ? SITE.address.country.no : SITE.address.country.en;
+
+const blurb =
+  locale === "no"
+    ? "Har du et prosjekt, en idé eller bare et spørsmål? Send oss en e-post — vi svarer raskt."
+    : "Have a project, an idea or just a question? Send us an email — we reply quickly.";
+---
+
+<BaseLayout
+  locale={locale}
+  active="contact"
+  title={t("contact.heading")}
+  description={blurb}
+>
+  <section class="section container container--narrow">
+    <p class="eyebrow">{t("contact.heading")}</p>
+    <h1>{t("contact.cta")}</h1>
+    <p class="lede">{blurb}</p>
+
+    <p class="contact-actions">
+      <a class="button" href={`mailto:${SITE.email}`}>{t("contact.emailUs")}</a>
+    </p>
+
+    <dl class="contact-details">
+      <div>
+        <dt>Email</dt>
+        <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+      </div>
+      <div>
+        <dt>{t("project.location")}</dt>
+        <dd>
+          {SITE.address.street}<br />
+          {SITE.address.postal}<br />
+          {country}
+        </dd>
+      </div>
+      <div>
+        <dt>Social</dt>
+        <dd>
+          {
+            SITE.socials.map((s) => (
+              <a href={s.href} target="_blank" rel="me noopener">
+                {s.label}
+              </a>
+            ))
+          }
+        </dd>
+      </div>
+    </dl>
+  </section>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-top: var(--space-m);
+  }
+  .lede {
+    margin-top: var(--space-m);
+  }
+  .contact-actions {
+    margin-top: var(--space-l);
+  }
+  .contact-details {
+    margin-top: var(--space-2xl);
+    border-top: var(--border);
+  }
+  .contact-details > div {
+    display: grid;
+    grid-template-columns: minmax(6rem, 10rem) 1fr;
+    gap: var(--space-s);
+    padding-block: var(--space-m);
+    border-bottom: var(--border);
+  }
+  .contact-details dt {
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .contact-details dd {
+    margin: 0;
+    line-height: 1.8;
+  }
+  .contact-details dd a {
+    display: inline-block;
+    margin-right: var(--space-s);
+  }
+  @media (max-width: 34rem) {
+    .contact-details > div {
+      grid-template-columns: 1fr;
+      gap: var(--space-3xs);
+    }
+  }
+</style>

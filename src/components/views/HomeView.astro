@@ -1,0 +1,131 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ProjectRow from "~/components/ProjectRow.astro";
+import ServiceCard from "~/components/ServiceCard.astro";
+import { getProjects, getServices, localizeService } from "~/lib/content";
+import { SITE } from "~/config/site";
+import { sectionHref, useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useT(locale);
+
+// Home shows the featured selection; /projects lists everything.
+const projects = (await getProjects(locale)).filter((p) => p.data.featured);
+const services = (await getServices()).map((s) => localizeService(s, locale));
+
+// ---------------------------------------------------------------------------
+// HERO COPY — a single short "about us" paragraph. Swap the text per locale.
+// ---------------------------------------------------------------------------
+const heroBody = {
+  en: "Brokkr is a small 3D-printing studio in the heart of Oslo with a large production capacity. We are product designers, helping you realise your vision all the way through to a finished product. We believe in local, sustainable production.",
+  no: "Brokkr er et lite 3D-printstudio midt i Oslo med stor produksjonskapasitet. Vi er produktdesignere som hjelper deg å realisere visjonen din helt fram til ferdig produkt. Vi tror på lokal, bærekraftig produksjon.",
+}[locale];
+
+const logoSrc = `${import.meta.env.BASE_URL}brokkr-logo.svg`;
+---
+
+<BaseLayout locale={locale} title={SITE.name} description={heroBody}>
+  <section class="hero container">
+    <img
+      class="hero__logo"
+      src={logoSrc}
+      width="240"
+      height="240"
+      alt="Brokkr"
+      fetchpriority="high"
+    />
+    <p class="hero__body">{heroBody}</p>
+  </section>
+
+  {
+    projects.length > 0 && (
+      <section class="home-projects container">
+        <div class="project-rows">
+          {projects.map((p, i) => (
+            <ProjectRow
+              project={p}
+              locale={locale}
+              index={i}
+              priority={i === 0}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section container">
+    <div class="section__head">
+      <h2>{t("home.servicesHeading")}</h2>
+      <a class="section__more" href={sectionHref(locale, "services")}>
+        {t("home.allServices")} &rarr;
+      </a>
+    </div>
+    <div class="services-list">
+      {
+        services.map((s, i) => (
+          <ServiceCard
+            locale={locale}
+            id={s.id}
+            index={i + 1}
+            title={s.title}
+            tagline={s.tagline}
+          />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    /* extra bottom padding holds the first project row in place while the
+       text sits higher — leaving ~two lines of breathing room below it */
+    padding-block: clamp(2.5rem, 9vh, 6rem) calc(var(--space-2xl) + 4rem);
+  }
+  .hero__logo {
+    width: clamp(8rem, 22vw, 15rem);
+    height: auto;
+    margin-left: auto;
+    margin-right: 0;
+  }
+  .hero__body {
+    margin-top: clamp(1.5rem, 7vh, 5rem);
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: var(--leading-normal);
+    color: var(--ink-soft);
+  }
+
+  .home-projects {
+    padding-block: 0 var(--space-2xl);
+  }
+  .project-rows {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-m);
+    margin-bottom: var(--space-l);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--border);
+  }
+  .section__more {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--ink-soft);
+    flex: none;
+  }
+  .section__more:hover {
+    color: var(--accent);
+  }
+</style>

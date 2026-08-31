@@ -1,0 +1,21 @@
+---
+/**
+ * Minimal rich text: splits a plain-text string into paragraphs on blank lines.
+ * Used for the short `body` fields on services (project bodies are real Markdown
+ * and render via <Content />).
+ */
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className } = Astro.props;
+const paragraphs = text
+  .trim()
+  .split(/\n\s*\n/)
+  .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
+  .filter(Boolean);
+---
+
+<div class:list={["prose", className]}>
+  {paragraphs.map((p) => <p>{p}</p>)}
+</div>

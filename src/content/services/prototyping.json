@@ -1,0 +1,15 @@
+{
+  "title": "Prototyping",
+  "title_no": "Prototyping",
+  "order": 3,
+  "tagline": "Almost any prototype, often in a matter of hours.",
+  "tagline_no": "Nesten hvilken som helst prototype, ofte på timer.",
+  "body": "We are 3D-printing nerds, and it shows in how fast we iterate. Send us a sketch, a CAD file or a rough idea and we will turn it into something you can hold, test and react to — usually within hours or days rather than weeks.\n\nFast physical feedback means better design decisions before anything goes into production.",
+  "body_no": "Vi er 3D-print-nerder, og det merkes på hvor raskt vi itererer. Send oss en skisse, en CAD-fil eller en løs idé, så gjør vi det om til noe du kan holde, teste og reagere på — som regel på timer eller dager, ikke uker.\n\nRask fysisk tilbakemelding gir bedre designbeslutninger før noe går i produksjon.",
+  "specs": [
+    { "label": "Turnaround", "label_no": "Leveringstid", "value": "Often same week", "value_no": "Ofte samme uke" },
+    { "label": "Formats", "label_no": "Formater", "value": "FDM, from desktop scale to large format", "value_no": "FDM, fra desktop-skala til storformat" },
+    { "label": "Input", "label_no": "Grunnlag", "value": "CAD, sketch, reference object or idea", "value_no": "CAD, skisse, referanseobjekt eller idé" }
+  ],
+  "featured": true
+}

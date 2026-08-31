@@ -1,0 +1,17 @@
+---
+interface Props {
+  label: string;
+  href?: string;
+  active?: boolean;
+}
+const { label, href, active = false } = Astro.props;
+const Tag = href ? "a" : "span";
+---
+
+<Tag
+  class="chip"
+  {...href ? { href } : {}}
+  {...active ? { "data-active": "true" } : {}}
+>
+  {label}
+</Tag>

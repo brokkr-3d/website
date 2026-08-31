@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Update this to https://brokkr.design/sitemap-index.xml after the custom-domain cutover.
+Sitemap: https://brokkr-3d.github.io/website/sitemap-index.xml

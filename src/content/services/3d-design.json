@@ -1,0 +1,15 @@
+{
+  "title": "3D Design",
+  "title_no": "3D-design",
+  "order": 2,
+  "tagline": "We have worked in 3D our whole lives — we can build whatever you need.",
+  "tagline_no": "Vi har jobbet i 3D hele livet — vi kan bygge det du trenger.",
+  "body": "Having worked in 3D our entire careers, we can help you design and model everything from a single part to a full product family. We handle geometry that is awkward or impossible with traditional manufacturing, and we design specifically for how the part will be printed.\n\nWe are fluent across the main CAD and modelling tools, and move comfortably between engineering-driven and form-driven work.",
+  "body_no": "Med et helt yrkesliv i 3D kan vi hjelpe deg å designe og modellere alt fra en enkelt del til en hel produktfamilie. Vi håndterer geometri som er vanskelig eller umulig med tradisjonell produksjon, og designer spesifikt for måten delen skal printes på.\n\nVi behersker de viktigste verktøyene for CAD og modellering, og beveger oss like godt mellom ingeniørdrevet og formdrevet arbeid.",
+  "specs": [
+    { "label": "Software", "label_no": "Programvare", "value": "SOLIDWORKS, Autodesk, Fusion 360, Blender, Rhino + Grasshopper", "value_no": "SOLIDWORKS, Autodesk, Fusion 360, Blender, Rhino + Grasshopper" },
+    { "label": "Approach", "label_no": "Tilnærming", "value": "Design for additive manufacturing (DfAM)", "value_no": "Design for additiv tilvirkning (DfAM)" },
+    { "label": "Deliverables", "label_no": "Leveranser", "value": "Print-ready models, drawings, source files", "value_no": "Printklare modeller, tegninger, kildefiler" }
+  ],
+  "featured": true
+}

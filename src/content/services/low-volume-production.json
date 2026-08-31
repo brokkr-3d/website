@@ -1,0 +1,15 @@
+{
+  "title": "Low Volume Production",
+  "title_no": "Småskalaproduksjon",
+  "order": 4,
+  "tagline": "Unique, sustainable products in recycled materials.",
+  "tagline_no": "Unike, bærekraftige produkter i resirkulerte materialer.",
+  "body": "For work that should be genuinely one-of-a-kind or made in small runs, we bring 3D-printed products to life using sustainable, recycled materials. This suits limited editions, bespoke objects, exhibition pieces and short commercial series.\n\nEach run is set up so it can be repeated, adjusted and expanded later.",
+  "body_no": "For arbeid som skal være helt unikt eller lages i små serier, realiserer vi 3D-printede produkter i bærekraftige, resirkulerte materialer. Det passer for begrensede opplag, spesialtilpassede objekter, utstillingsobjekter og korte kommersielle serier.\n\nHver serie settes opp slik at den kan gjentas, justeres og utvides senere.",
+  "specs": [
+    { "label": "Materials", "label_no": "Materialer", "value": "Recycled and bio-based polymers", "value_no": "Resirkulerte og biobaserte polymerer" },
+    { "label": "Volume", "label_no": "Volum", "value": "One-off to short series", "value_no": "Enkeltstykker til korte serier" },
+    { "label": "Good for", "label_no": "Passer for", "value": "Limited editions, bespoke and exhibition work", "value_no": "Begrensede opplag, spesialtilpasset arbeid og utstilling" }
+  ],
+  "featured": false
+}

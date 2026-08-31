@@ -1,0 +1,374 @@
+---
+import { NAV, SITE } from "~/config/site";
+import {
+  homeHref,
+  sectionHref,
+  useT,
+  type Locale,
+  type Section,
+} from "~/lib/i18n";
+import {
+  getServices,
+  localizeService,
+  usedCategories,
+} from "~/lib/content";
+import { categoryLabel } from "~/config/taxonomy";
+import LocaleSwitch from "./LocaleSwitch.astro";
+
+interface Props {
+  locale: Locale;
+  active?: Section;
+}
+const { locale, active } = Astro.props;
+const t = useT(locale);
+
+const services = (await getServices()).map((s) => localizeService(s, locale));
+const categorySlugs = await usedCategories(locale);
+
+type MenuItem = { label: string; href: string };
+const menus: Partial<Record<Section, MenuItem[]>> = {
+  services: services.map((s) => ({
+    label: s.title,
+    href: sectionHref(locale, "services", s.id),
+  })),
+  projects: categorySlugs.map((c) => ({
+    label: categoryLabel(c, locale),
+    href: `${sectionHref(locale, "projects")}?category=${c}`,
+  })),
+};
+
+const links = NAV.map((item) => {
+  const key = item.key as Section;
+  return {
+    key,
+    label: t(`nav.${item.key}` as const),
+    href: sectionHref(locale, key),
+    active: key === active,
+    menu: menus[key],
+  };
+});
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="wordmark" href={homeHref(locale)}>{SITE.name}</a>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+    >
+      <span class="visually-hidden">{t("a11y.menu")}</span>
+      <span class="nav-toggle__bars" aria-hidden="true"></span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Primary" data-nav>
+      <ul>
+        {
+          links.map((l) => (
+            <li class:list={["nav-item", { "has-menu": !!l.menu }]}>
+              <a href={l.href} aria-current={l.active ? "page" : undefined}>
+                {l.label}
+              </a>
+              {l.menu && (
+                <>
+                  <button
+                    type="button"
+                    class="nav-item__chevron"
+                    aria-expanded="false"
+                    aria-label={`${l.label} — ${t("a11y.menu")}`}
+                  >
+                    <svg viewBox="0 0 12 8" aria-hidden="true" width="12" height="8">
+                      <path
+                        d="M1 1.5 6 6.5 11 1.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <ul class="submenu">
+                    {l.menu.map((m) => (
+                      <li>
+                        <a href={m.href}>{m.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+      <div class="site-nav__locale">
+        <LocaleSwitch />
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  const nav = document.querySelector<HTMLElement>("[data-nav]");
+  toggle?.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!open));
+    nav?.toggleAttribute("data-open", !open);
+  });
+
+  const menuItems = Array.from(
+    document.querySelectorAll<HTMLElement>(".nav-item.has-menu"),
+  );
+  const closeAll = (except?: HTMLElement) => {
+    for (const item of menuItems) {
+      if (item === except) continue;
+      item.removeAttribute("data-open");
+      item
+        .querySelector(".nav-item__chevron")
+        ?.setAttribute("aria-expanded", "false");
+    }
+  };
+  for (const item of menuItems) {
+    const chevron = item.querySelector<HTMLButtonElement>(".nav-item__chevron");
+    chevron?.addEventListener("click", (e) => {
+      e.preventDefault();
+      const open = item.hasAttribute("data-open");
+      closeAll(item);
+      item.toggleAttribute("data-open", !open);
+      chevron.setAttribute("aria-expanded", String(!open));
+    });
+  }
+  document.addEventListener("click", (e) => {
+    if (!(e.target as HTMLElement).closest(".nav-item.has-menu")) closeAll();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAll();
+  });
+</script>
+
+<style>
+  .site-header {
+    border-bottom: var(--border);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-block: var(--space-s);
+  }
+  .wordmark {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    letter-spacing: var(--tracking-tight);
+    text-decoration: none;
+  }
+  .wordmark:hover {
+    color: var(--accent);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.25rem);
+  }
+  .site-nav > ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: clamp(1rem, 3vw, 2.25rem);
+  }
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.15em;
+  }
+  .nav-item > a {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: var(--ink-soft);
+    padding-block: 0.25em;
+  }
+  .nav-item > a:hover,
+  .nav-item > a[aria-current="page"] {
+    color: var(--ink);
+  }
+
+  .nav-item__chevron {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35em;
+    border: 0;
+    background: none;
+    color: var(--ink-faint);
+    line-height: 0;
+  }
+  .nav-item__chevron svg {
+    transition: transform var(--transition);
+  }
+  .nav-item:hover .nav-item__chevron,
+  .nav-item:focus-within .nav-item__chevron {
+    color: var(--ink);
+  }
+  .nav-item[data-open] .nav-item__chevron svg {
+    transform: rotate(180deg);
+  }
+
+  .submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 50;
+    min-width: 13rem;
+    margin: 0;
+    padding: var(--space-2xs) 0;
+    list-style: none;
+    background: var(--paper-raised);
+    border: var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px -12px rgb(26 24 21 / 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity var(--transition), transform var(--transition),
+      visibility var(--transition);
+  }
+  .has-menu:hover .submenu,
+  .has-menu:focus-within .submenu,
+  .has-menu[data-open] .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  /* keep the pointer bridge between label and menu */
+  .has-menu::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: var(--space-s);
+  }
+  .submenu a {
+    display: block;
+    padding: 0.6em 1.1em;
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+  .submenu a:hover {
+    color: var(--ink);
+    background: var(--paper-dim);
+  }
+
+  .site-nav__locale {
+    padding-left: clamp(1rem, 3vw, 2.25rem);
+    border-left: var(--border);
+  }
+
+  .nav-toggle {
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: transparent;
+    position: relative;
+  }
+  .nav-toggle__bars,
+  .nav-toggle__bars::before,
+  .nav-toggle__bars::after {
+    position: absolute;
+    left: 50%;
+    width: 1.1rem;
+    height: 1.5px;
+    background: var(--ink);
+    transform: translateX(-50%);
+    content: "";
+  }
+  .nav-toggle__bars {
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .nav-toggle__bars::before {
+    top: -6px;
+  }
+  .nav-toggle__bars::after {
+    top: 6px;
+  }
+
+  @media (max-width: 44rem) {
+    .nav-toggle {
+      display: block;
+    }
+    .site-header__inner {
+      position: relative;
+    }
+    .site-nav {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-m);
+      padding: var(--space-l) clamp(1.25rem, 5vw, 3rem);
+      background: var(--paper-raised);
+      border-bottom: var(--border);
+    }
+    .site-nav[data-open] {
+      display: flex;
+    }
+    .site-nav > ul {
+      flex-direction: column;
+      gap: var(--space-s);
+      width: 100%;
+    }
+    .nav-item {
+      flex-wrap: wrap;
+    }
+    .nav-item > a {
+      font-size: var(--step-0);
+    }
+    .nav-item__chevron {
+      display: none;
+    }
+    .has-menu::after {
+      content: none;
+    }
+    .submenu {
+      position: static;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      width: 100%;
+      margin-top: var(--space-2xs);
+      padding: 0 0 0 var(--space-s);
+      border: none;
+      border-left: var(--border);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+    .submenu a {
+      padding: 0.4em 0;
+      white-space: normal;
+    }
+    .site-nav__locale {
+      padding-left: 0;
+      border-left: none;
+      padding-top: var(--space-s);
+      border-top: var(--border);
+      width: 100%;
+    }
+  }
+</style>

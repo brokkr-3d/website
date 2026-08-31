@@ -1,0 +1,15 @@
+{
+  "title": "Full Production",
+  "title_no": "Fullskalaproduksjon",
+  "order": 5,
+  "tagline": "Full production runs of sustainable 3D-printed products, in the country of your choice.",
+  "tagline_no": "Fullskala produksjonsserier av bærekraftige 3D-printede produkter, i landet du velger.",
+  "body": "Through our own facility and a network of partners, we can scale up to full production runs of sustainably 3D-printed products. Production can be placed close to where the products are used, which cuts transport, shortens lead times and keeps value local.\n\nWe manage the process end to end: tooling-free setup, quality control, finishing and logistics.",
+  "body_no": "Gjennom eget verksted og et nettverk av partnere kan vi skalere opp til fullskala produksjonsserier av bærekraftige 3D-printede produkter. Produksjonen kan legges nær der produktene brukes, noe som kutter transport, korter ned leveringstid og holder verdiskapingen lokal.\n\nVi styrer prosessen fra ende til ende: oppsett uten verktøykostnad, kvalitetskontroll, etterbehandling og logistikk.",
+  "specs": [
+    { "label": "Capacity", "label_no": "Kapasitet", "value": "Own facility + partner network", "value_no": "Eget verksted + partnernettverk" },
+    { "label": "Placement", "label_no": "Plassering", "value": "Local production, country of your choice", "value_no": "Lokal produksjon, i landet du velger" },
+    { "label": "Includes", "label_no": "Inkluderer", "value": "QC, finishing and logistics", "value_no": "Kvalitetskontroll, etterbehandling og logistikk" }
+  ],
+  "featured": false
+}

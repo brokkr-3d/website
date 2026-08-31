@@ -1,0 +1,118 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import RichText from "~/components/RichText.astro";
+import SpecTable from "~/components/SpecTable.astro";
+import ProjectCard from "~/components/ProjectCard.astro";
+import {
+  getService,
+  getServices,
+  localizeService,
+  projectsForService,
+} from "~/lib/content";
+import { sectionHref, useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+  id: string;
+}
+const { locale, id } = Astro.props;
+
+const entry = await getService(id);
+if (!entry) throw new Error(`Unknown service: ${id}`);
+const service = localizeService(entry, locale);
+
+const all = await getServices();
+const index = all.findIndex((s) => s.id === id) + 1;
+
+const projects = await projectsForService(id, locale);
+const t = useT(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  active="services"
+  title={service.title}
+  description={service.tagline}
+>
+  <article class="section container">
+    <p class="breadcrumb">
+      <a href={sectionHref(locale, "services")}>{t("services.heading")}</a>
+      <span aria-hidden="true">/</span>
+      <span>{String(index).padStart(2, "0")}</span>
+    </p>
+
+    <header class="service-head">
+      <h1>{service.title}</h1>
+      <p class="lede">{service.tagline}</p>
+    </header>
+
+    <div class="service-body">
+      <RichText text={service.body} />
+      {service.specs.length > 0 && (
+        <aside class="service-specs">
+          <h2 class="specs-heading">{t("service.specsHeading")}</h2>
+          <SpecTable specs={service.specs} />
+        </aside>
+      )}
+    </div>
+  </article>
+
+  {
+    projects.length > 0 && (
+      <section class="section--tight container">
+        <h2 class="related-heading">{t("service.projectsHeading")}</h2>
+        <div class="grid-cards">
+          {projects.map((p) => (
+            <ProjectCard project={p} locale={locale} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    gap: 0.6em;
+    font-family: var(--font-sans);
+    font-size: var(--step--2);
+    color: var(--ink-faint);
+    margin-bottom: var(--space-l);
+  }
+  .breadcrumb a {
+    text-decoration: none;
+  }
+  .service-head {
+    max-width: 24ch;
+    margin-bottom: var(--space-2xl);
+  }
+  .service-head .lede {
+    margin-top: var(--space-m);
+  }
+  .service-body {
+    display: grid;
+    gap: var(--space-2xl);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 56rem) {
+    .service-body {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: var(--space-2xl) var(--space-2xl);
+      align-items: start;
+    }
+  }
+  .specs-heading,
+  .related-heading {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: var(--space-m);
+  }
+  .related-heading {
+    padding-bottom: var(--space-s);
+    border-bottom: var(--border);
+  }
+</style>

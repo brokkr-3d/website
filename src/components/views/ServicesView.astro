@@ -1,0 +1,51 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ServiceCard from "~/components/ServiceCard.astro";
+import { getServices, localizeService } from "~/lib/content";
+import { useT, type Locale } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useT(locale);
+const services = (await getServices()).map((s) => localizeService(s, locale));
+---
+
+<BaseLayout
+  locale={locale}
+  active="services"
+  title={t("services.heading")}
+  description={t("services.intro")}
+>
+  <section class="section container">
+    <header class="page-head">
+      <p class="eyebrow">{t("services.heading")}</p>
+      <h1>{t("services.intro")}</h1>
+    </header>
+
+    <div class="services-list">
+      {
+        services.map((s, i) => (
+          <ServiceCard
+            locale={locale}
+            id={s.id}
+            index={i + 1}
+            title={s.title}
+            tagline={s.tagline}
+          />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    max-width: 24ch;
+    margin-bottom: var(--space-2xl);
+  }
+  .page-head .eyebrow {
+    margin-bottom: var(--space-m);
+  }
+</style>

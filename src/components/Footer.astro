@@ -1,0 +1,98 @@
+---
+import { NAV, SITE } from "~/config/site";
+import { sectionHref, useT, type Locale, type Section } from "~/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = useT(locale);
+const year = new Date().getFullYear();
+
+const links = NAV.map((item) => ({
+  label: t(`nav.${item.key}` as const),
+  href: sectionHref(locale, item.key as Section),
+}));
+const country = locale === "no" ? SITE.address.country.no : SITE.address.country.en;
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__col">
+      <p class="wordmark">{SITE.name}</p>
+      <p class="muted">
+        {locale === "no" ? SITE.tagline.no : SITE.tagline.en}
+      </p>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Footer">
+      <ul>
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <address class="site-footer__col">
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br />
+      {SITE.address.street}<br />
+      {SITE.address.postal}, {country}
+      <ul class="socials">
+        {SITE.socials.map((s) => <li><a href={s.href} rel="me noopener" target="_blank">{s.label}</a></li>)}
+      </ul>
+    </address>
+  </div>
+
+  <div class="container site-footer__legal">
+    <span>© {year} {SITE.legalName}. {t("footer.rights")}</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--border);
+    padding-block: var(--space-xl) var(--space-l);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+  }
+  .site-footer__inner {
+    display: grid;
+    gap: var(--space-l);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+  .site-footer .wordmark {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    letter-spacing: var(--tracking-tight);
+  }
+  .site-footer .muted {
+    color: var(--ink-faint);
+    margin-top: var(--space-2xs);
+  }
+  .site-footer ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4em;
+  }
+  .site-footer a {
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+  .site-footer a:hover {
+    color: var(--ink);
+  }
+  address {
+    font-style: normal;
+    color: var(--ink-soft);
+    line-height: 1.8;
+  }
+  .socials {
+    margin-top: var(--space-s);
+  }
+  .site-footer__legal {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-m);
+    border-top: var(--border);
+    color: var(--ink-faint);
+    font-size: var(--step--2);
+  }
+</style>

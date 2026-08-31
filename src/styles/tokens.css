@@ -1,0 +1,57 @@
+:root {
+  /* ----- Colour: warm paper + near-black ink, one ember accent ----- */
+  --paper: #f5f2ec;
+  --paper-dim: #ece7de;
+  --paper-raised: #fbf9f4;
+  --ink: #1a1815;
+  --ink-soft: #55504a;
+  --ink-faint: #8b857c;
+  --line: #d9d3c6;
+  --line-strong: #b8b1a2;
+  --accent: #a83e1c;
+  --accent-hover: #8a3115;
+  --on-accent: #fbf9f4;
+
+  /* ----- Type ----- */
+  --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+
+  /* Fluid scale (min 360px viewport → max ~1400px) */
+  --step--2: clamp(0.69rem, 0.66rem + 0.14vw, 0.79rem);
+  --step--1: clamp(0.83rem, 0.79rem + 0.2vw, 0.94rem);
+  --step-0: clamp(1rem, 0.95rem + 0.24vw, 1.13rem);
+  --step-1: clamp(1.2rem, 1.11rem + 0.44vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.29rem + 0.77vw, 2rem);
+  --step-3: clamp(1.73rem, 1.48rem + 1.24vw, 2.66rem);
+  --step-4: clamp(2.07rem, 1.68rem + 1.97vw, 3.55rem);
+  --step-5: clamp(2.49rem, 1.88rem + 3.05vw, 4.73rem);
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.08em;
+
+  /* ----- Space (8px base) ----- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+
+  /* ----- Layout ----- */
+  --measure: 68ch;
+  --container: 78rem;
+  --container-narrow: 46rem;
+  --radius: 2px;
+  --radius-lg: 4px;
+
+  --border: 1px solid var(--line);
+  --transition: 180ms ease;
+}

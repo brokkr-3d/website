@@ -1,0 +1,13 @@
+---
+import ProjectDetailView from "~/components/views/ProjectDetailView.astro";
+import { getProjectSlugs } from "~/lib/content";
+
+export async function getStaticPaths() {
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+---
+
+<ProjectDetailView locale="en" slug={slug!} />
