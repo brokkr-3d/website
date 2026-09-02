@@ -78,6 +78,7 @@ const links = NAV.map((item) => {
                     type="button"
                     class="nav-item__chevron"
                     aria-expanded="false"
+                    aria-haspopup="true"
                     aria-label={`${l.label} — ${t("a11y.menu")}`}
                   >
                     <svg viewBox="0 0 12 8" aria-hidden="true" width="12" height="8">
@@ -191,30 +192,39 @@ const links = NAV.map((item) => {
     font-family: var(--font-sans);
     font-size: var(--step--1);
     letter-spacing: 0.02em;
-    text-decoration: none;
     color: var(--ink-soft);
     padding-block: 0.25em;
+    /* persistent underline so it reads as a link, not just a menu label */
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 0.35em;
+    transition: color var(--transition), text-decoration-color var(--transition);
   }
   .nav-item > a:hover,
   .nav-item > a[aria-current="page"] {
     color: var(--ink);
+    text-decoration-color: currentColor;
   }
 
   .nav-item__chevron {
     display: inline-flex;
     align-items: center;
-    padding: 0.35em;
+    padding: 0.4em;
     border: 0;
+    border-radius: 999px;
     background: none;
     color: var(--ink-faint);
     line-height: 0;
+    transition: color var(--transition), background var(--transition);
   }
   .nav-item__chevron svg {
     transition: transform var(--transition);
   }
-  .nav-item:hover .nav-item__chevron,
-  .nav-item:focus-within .nav-item__chevron {
+  .nav-item__chevron:hover,
+  .nav-item[data-open] .nav-item__chevron {
     color: var(--ink);
+    background: var(--paper-dim);
   }
   .nav-item[data-open] .nav-item__chevron svg {
     transform: rotate(180deg);
@@ -239,21 +249,11 @@ const links = NAV.map((item) => {
     transition: opacity var(--transition), transform var(--transition),
       visibility var(--transition);
   }
-  .has-menu:hover .submenu,
-  .has-menu:focus-within .submenu,
+  /* click-only: the submenu opens when the chevron sets [data-open] */
   .has-menu[data-open] .submenu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-  }
-  /* keep the pointer bridge between label and menu */
-  .has-menu::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: var(--space-s);
   }
   .submenu a {
     display: block;
@@ -335,20 +335,16 @@ const links = NAV.map((item) => {
     }
     .nav-item {
       flex-wrap: wrap;
+      gap: 0.5em;
     }
     .nav-item > a {
       font-size: var(--step-0);
     }
     .nav-item__chevron {
-      display: none;
-    }
-    .has-menu::after {
-      content: none;
+      padding: 0.5em;
     }
     .submenu {
       position: static;
-      opacity: 1;
-      visibility: visible;
       transform: none;
       width: 100%;
       margin-top: var(--space-2xs);
@@ -358,6 +354,13 @@ const links = NAV.map((item) => {
       border-radius: 0;
       background: transparent;
       box-shadow: none;
+      /* still hidden until the chevron is tapped */
+      display: none;
+      opacity: 1;
+      visibility: visible;
+    }
+    .has-menu[data-open] .submenu {
+      display: block;
     }
     .submenu a {
       padding: 0.4em 0;
