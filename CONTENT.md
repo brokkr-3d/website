@@ -1,120 +1,91 @@
 # Editing content
 
-All content is plain files in this repo. There is no CMS and no database. The
-usual loop is: **you hand Claude a few photos and a short description, Claude
-writes/updates the files below and commits + pushes.** This document is the
-reference for doing that by hand, and for Claude.
+Everything the site shows lives in the top-level **`content/`** folder — one
+folder per project, service and team member. Add a folder, drop files in, and
+the next build picks it up. No code changes.
 
-Everything is bilingual: **English (`en`, the default)** and **Norwegian
-(`no`)**. Every project needs both language files.
+```
+content/
+  projects/<slug>/   en.md  no.md  cover.webp  01.webp  02.webp …
+  services/<slug>/    service.json
+  team/<slug>/         profile.md  photo.jpg
+```
+
+The `<slug>` (folder name) is the URL: `content/projects/the-star/` →
+`/projects/the-star`. Use lowercase, dashes, no spaces.
 
 ---
 
-## Add a project
+## Add or edit a project
 
-1. **Images** → put them in `src/assets/projects/<slug>/`
-   - `cover.jpg` (or `.png`) — the card + hero image. Landscape, ≥ 1600px wide.
-   - `01.jpg`, `02.jpg`, … — gallery images, ≥ 1600px on the long edge.
-   - `<slug>` is lowercase, words separated by hyphens, e.g. `the-star`.
-
-2. **Text** → create two files:
-   - `src/content/projects/<slug>.en.md`
-   - `src/content/projects/<slug>.no.md`
-
-   Template (fill both files; keep `project`, `year`, `services`, `categories`,
-   `featured`, `order` identical in both — only the prose and `alt` text differ):
+1. **Folder**: `content/projects/<slug>/`
+2. **Images**: drop them straight in the folder.
+   - `cover.*` is the big image (card, row, detail hero). If there's no
+     `cover.*`, the first image by filename is used.
+   - Every other image (`01.webp`, `02.webp`, …) becomes the gallery, shown in
+     filename order.
+   - Any format works (`.webp`, `.jpg`, `.png`, `.avif`); the build optimises
+     and resizes them. Aim for the long edge ≥ 1600 px.
+3. **Text**: `en.md` and `no.md`, same structure, only the wording differs:
 
    ```markdown
    ---
-   project: "the-star"             # the shared key that pairs the two language files
-   locale: "en"                     # "no" in the .no.md file
-   title: "The Star"
-   summary: "One or two sentences — used on the card and as the search snippet."
-   year: 2024
-   client: "Client name"            # optional — omit the line if none
-   location: "Oslo"                 # optional
-   services: ["3d-design", "full-production"]   # ids from src/content/services/*
-   categories: ["sculpture", "art"]            # values from src/config/taxonomy.ts
-   featured: true                   # true → may appear on the home page
-   order: 0                         # tie-breaker; lower shows first within a year
-   cover: "../../assets/projects/the-star/cover.jpg"
-   gallery:
-     - src: "../../assets/projects/the-star/01.jpg"
-       alt: "Describe the image for screen readers and SEO"
-     - src: "../../assets/projects/the-star/02.jpg"
-       alt: "…"
-   credits:                         # optional
-     - role: "Design & fabrication"
-       name: "Brokkr"
-   links:                           # optional — external only (press, video, shop)
-     - label: "Coverage in Dezeen"
-       url: "https://…"
+   title: The Star
+   summary: One or two sentences — used on the card and as the meta description.
+   year: 2025
+   client: Trym Ruud            # optional
+   location: Oslo               # optional
+   services: [3d-design, low-volume-production, full-production]
+   categories: [sculpture, art]
+   featured: true               # true = also shows on the home page
+   order: 1                     # tie-breaker within a year; lower = higher up
+   credits:                     # optional
+     - role: Digital art
+       name: Trym Ruud
+   links:                       # optional
+     - label: Read more
+       url: https://example.com
+   captions:                    # optional — alt text per image, by filename
+     "01": The Star during assembly
+     "02": The finished statue
    ---
 
-   The project write-up goes here as normal Markdown — a few short paragraphs.
+   The write-up goes here. Plain paragraphs; blank line between them.
    ```
 
-3. **Check** → `npm run build`. It fails loudly if a `service` id or `category`
-   is misspelled, an image path is wrong, or a required field is missing.
+   - `services:` — folder names from `content/services/` (a wrong name is just
+     ignored).
+   - `categories:` — must be from the list in `src/config/taxonomy.ts`. To add
+     a new category, add its slug + EN/NO label there.
+   - Keep `year`, `services`, `categories`, `featured`, `order` **identical** in
+     `en.md` and `no.md`. Only `title`, `summary`, `captions` and the body
+     should differ between languages.
 
-4. **Publish** → commit both `.md` files + the image folder, push to `main`.
-   GitHub Actions builds and deploys automatically.
+**Remove a project**: delete its folder.
 
-### The two tags on a project
+## Add or edit a service
 
-- **`services`** — which of the five services the project involved. Ids are the
-  filenames in `src/content/services/`: `consulting`, `3d-design`,
-  `prototyping`, `low-volume-production`, `full-production`. This is what links a
-  project to a Service page (and makes it show up there).
-- **`categories`** — what kind of thing it is. Allowed values live in
-  `src/config/taxonomy.ts` (`lighting`, `furniture`, `art`, `sculpture`, …).
-  Visitors browse projects by category on `/projects`.
+Edit `content/services/<slug>/service.json` — both languages live in one file
+(`title` / `title_no`, `tagline` / `tagline_no`, `body` / `body_no`, plus
+`specs` and `order`). A service with no `service.json` won't appear.
 
----
+## Add or edit a team member
 
-## Edit a service
-
-Services are the five steps in `src/content/services/*.json` (`consulting.json`,
-`3d-design.json`, `prototyping.json`, `low-volume-production.json`,
-`full-production.json`).
-
-Each file has English fields and a parallel `*_no` field for Norwegian — **keep
-them in sync**. `specs` is the little "at a glance" table on the service page.
-`order` (1–5) sets the sequence everywhere. Don't rename the files — the
-filename is the id that projects reference.
+`content/team/<slug>/profile.md` — frontmatter only (`name`, `role` /
+`role_no`, `bio` / `bio_no`, `order`). Drop a `photo.*` in the same folder for
+the portrait; portrait crop (roughly 4:5) looks best.
 
 ---
 
-## Add a category
+## Before you publish
 
-Edit `src/config/taxonomy.ts`: add the slug to `CATEGORIES` **and** an
-English/Norwegian pair to `CATEGORY_LABELS`. Then use it in a project's
-`categories`.
-
----
-
-## Add / edit a team member
-
-`src/content/team/<first-name>.md` — all fields are frontmatter:
-
-```markdown
----
-name: "Alf Petter"
-role: "Civil engineer · Strategy"
-role_no: "Sivilingeniør · Strategi"
-bio: "One or two sentences."
-bio_no: "Én eller to setninger."
-order: 1
-photo: "../../assets/team/alf-petter.jpg"   # optional; ≥ 800px, portrait
----
+```bash
+npm run build
 ```
 
-Put the photo in `src/assets/team/`.
+This validates every file and fails loudly on a bad `year`, an unknown
+`category`, a malformed frontmatter, etc. If it passes, commit and push — the
+site redeploys automatically.
 
----
-
-## Definition of done
-
-- `npm run build` passes with no errors.
-- `npm run preview` — the new page looks right in both `en` and `no`.
-- Commit content + images together, push to `main`.
+Ordering on `/projects` and the home page: newest `year` first, then `order`
+(low → high) within a year, then title A–Z.

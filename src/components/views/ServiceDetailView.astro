@@ -8,6 +8,7 @@ import {
   getServices,
   localizeService,
   projectsForService,
+  serviceSlug,
 } from "~/lib/content";
 import { sectionHref, useT, type Locale } from "~/lib/i18n";
 
@@ -22,7 +23,7 @@ if (!entry) throw new Error(`Unknown service: ${id}`);
 const service = localizeService(entry, locale);
 
 const all = await getServices();
-const index = all.findIndex((s) => s.id === id) + 1;
+const index = all.findIndex((s) => serviceSlug(s) === id) + 1;
 
 const projects = await projectsForService(id, locale);
 const t = useT(locale);

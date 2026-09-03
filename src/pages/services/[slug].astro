@@ -1,10 +1,10 @@
 ---
 import ServiceDetailView from "~/components/views/ServiceDetailView.astro";
-import { getServices } from "~/lib/content";
+import { getServiceSlugs } from "~/lib/content";
 
 export async function getStaticPaths() {
-  const services = await getServices();
-  return services.map((s) => ({ params: { slug: s.id } }));
+  const slugs = await getServiceSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
 }
 
 const { slug } = Astro.params;

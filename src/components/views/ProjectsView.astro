@@ -15,8 +15,7 @@ const projects = await getProjects(locale);
 const services = (await getServices()).map((s) => localizeService(s, locale));
 const usedCats = await usedCategories(locale);
 
-const cardServiceIds = (p: (typeof projects)[number]) =>
-  p.data.services.map((r) => r.id);
+const cardServiceIds = (p: (typeof projects)[number]) => p.data.services;
 
 // Label maps handed to the client script (filtering is URL-driven, no on-page UI).
 const catLabels = Object.fromEntries(

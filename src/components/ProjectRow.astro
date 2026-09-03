@@ -1,8 +1,9 @@
 ---
 import { Image } from "astro:assets";
-import type { ProjectEntry } from "~/lib/content";
+import { type ProjectEntry, projectSlug, projectMedia } from "~/lib/content";
 import { sectionHref, type Locale } from "~/lib/i18n";
 import { categoryLabel } from "~/config/taxonomy";
+import placeholder from "~/assets/_placeholder.svg";
 
 interface Props {
   project: ProjectEntry;
@@ -13,8 +14,10 @@ interface Props {
   priority?: boolean;
 }
 const { project, locale, index = 0, priority = false } = Astro.props;
-const { project: key, title, cover, categories } = project.data;
-const href = sectionHref(locale, "projects", key);
+const { title, categories } = project.data;
+const slug = projectSlug(project);
+const cover = projectMedia(slug).cover ?? placeholder;
+const href = sectionHref(locale, "projects", slug);
 const flip = index % 2 === 1;
 ---
 
