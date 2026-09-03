@@ -11,7 +11,12 @@ interface Props {
 const { locale } = Astro.props;
 const t = useT(locale);
 
-const projects = await getProjects(locale);
+// Same recency order as everywhere else, but featured projects come first.
+const byRecency = await getProjects(locale);
+const projects = [
+  ...byRecency.filter((p) => p.data.featured),
+  ...byRecency.filter((p) => !p.data.featured),
+];
 const services = (await getServices()).map((s) => localizeService(s, locale));
 const usedCats = await usedCategories(locale);
 
