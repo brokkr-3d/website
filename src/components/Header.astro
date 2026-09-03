@@ -315,6 +315,7 @@ const links = NAV.map((item) => {
     .site-nav {
       display: none;
       position: absolute;
+      top: 100%;
       left: 0;
       right: 0;
       z-index: 40;
@@ -323,7 +324,7 @@ const links = NAV.map((item) => {
       gap: var(--space-m);
       padding: var(--space-l) clamp(1.25rem, 5vw, 3rem);
       background: var(--paper-raised);
-      border-bottom: var(--border);
+      border-block: var(--border);
     }
     .site-nav[data-open] {
       display: flex;
