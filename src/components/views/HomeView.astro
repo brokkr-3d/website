@@ -66,6 +66,12 @@ const logoSrc = withBase("/brokkr-logo.svg");
        text sits higher — leaving ~two lines of breathing room below it */
     padding-block: clamp(2.5rem, 9vh, 6rem) calc(var(--space-2xl) + 4rem);
   }
+  /* on phones, trim it so the top of the first project peeks above the fold */
+  @media (max-width: 40rem) {
+    .hero {
+      padding-bottom: var(--space-xl);
+    }
+  }
   .hero__logo {
     width: clamp(8rem, 22vw, 15rem);
     height: auto;
